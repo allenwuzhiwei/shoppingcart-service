@@ -1,5 +1,7 @@
 package com.iss.shoppingcart.config;
 
+import com.iss.shoppingcart.entity.ShoppingCart;
+
 public class ApiResponse<T> {
     private boolean success;
     private String message;
@@ -28,6 +30,13 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>(false, message, null);
+    }
+
+    public static <T> ApiResponse<T> fail(String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(false);
+        response.setMessage(message);
+        return response;
     }
 
     // Getters and setters
