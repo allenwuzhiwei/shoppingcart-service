@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.nusiss</groupId>
-	<artifactId>shopping-cart</artifactId>
+	<artifactId>shoppingcart-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>shopping-cart</name>
+	<name>shoppingcart-service</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
