@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -49,16 +50,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
      */
     @Override
     @Transactional
-    public CartItem addProductToCart(Long userId, Long productId, Integer quantity) {
+    public CartItem addProductToCart(Long userId, Long productId, Integer quantity, BigDecimal price) {
 
-        // Step 1: 查询用户购物车主表是否存在，如果不存在则自动创建
+        // Step 1：判断用户购物车是否存在，不存在则创建
         Optional<ShoppingCart> optionalCart = shoppingCartRepository.findByUserId(userId);
         if (optionalCart.isEmpty()) {
             ShoppingCart newCart = new ShoppingCart();
             newCart.setUserId(userId);
             newCart.setCreateDatetime(LocalDateTime.now());
             newCart.setUpdateDatetime(LocalDateTime.now());
-            newCart.setCreateUser("system"); // 或传参设置
+            newCart.setCreateUser("system");
             newCart.setUpdateUser("system");
             shoppingCartRepository.save(newCart);
         }
@@ -70,6 +71,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             // 若该商品已在购物车中，叠加数量
             item = optionalItem.get();
             item.setQuantity(item.getQuantity() + quantity);
+            item.setPriceAtAdd(price.multiply(BigDecimal.valueOf(item.getQuantity()))); // 重新计算总价
             item.setUpdateDatetime(LocalDateTime.now());
         } else {
             // 新增商品项
@@ -77,11 +79,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             item.setUserId(userId);
             item.setProductId(productId);
             item.setQuantity(quantity);
+            item.setPriceAtAdd(price.multiply(BigDecimal.valueOf(quantity))); // 设置初始总价
             item.setCreateDatetime(LocalDateTime.now());
             item.setUpdateDatetime(LocalDateTime.now());
             item.setCreateUser("system");
-            item.setUpdateUser("system");
-            item.setPriceAtAdd(BigDecimal.ZERO); // 实际项目中可调用 product-service 获取价格
+            item.setUpdateUser("system"); // TODO：实际项目中可调用 product-service 获取价格,目前先用前端数据
         }
 
         return cartItemRepository.save(item);
@@ -93,13 +95,22 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
      */
     @Transactional
     @Override
-    public CartItem updateProductQuantity(Long userId, Long productId, Integer newQuantity) {
+    public CartItem updateProductQuantity(Long userId, Long productId, Integer newQuantity, BigDecimal price) {
         CartItem item = cartItemRepository.findByUserIdAndProductId(userId, productId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
+
         item.setQuantity(newQuantity);
         item.setUpdateDatetime(LocalDateTime.now());
+
+        // 如果请求中提供了价格，则用新的单价更新总价
+        if (price != null && newQuantity != null) {
+            item.setPriceAtAdd(price.multiply(BigDecimal.valueOf(newQuantity)));
+        }
+
         return cartItemRepository.save(item);
     }
+
+
 
     /*
      从购物车中删除某个商品
