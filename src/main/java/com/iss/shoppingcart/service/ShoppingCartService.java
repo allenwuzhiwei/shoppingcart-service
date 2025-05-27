@@ -3,6 +3,7 @@ package com.iss.shoppingcart.service;
 import com.iss.shoppingcart.entity.CartItem;
 import com.iss.shoppingcart.entity.ShoppingCart;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ public interface ShoppingCartService {
     /*
      向购物车添加商品（若已存在则叠加数量）
      */
-    CartItem addProductToCart(Long userId, Long productId, Integer quantity);
+    CartItem addProductToCart(Long userId, Long productId, Integer quantity, BigDecimal price);
 
     /*
      获取用户购物车中的所有商品项
@@ -29,7 +30,7 @@ public interface ShoppingCartService {
     /*
      修改购物车中商品的数量
      */
-    CartItem updateProductQuantity(Long userId, Long productId, Integer newQuantity);
+    CartItem updateProductQuantity(Long userId, Long productId, Integer newQuantity, BigDecimal price);
 
     /*
      从购物车中删除一个商品
