@@ -47,7 +47,11 @@ public class ShoppingCartController {
     @PostMapping("/add")
     public ApiResponse<CartItem> addToCart(@RequestBody AddCartRequest request) {
         CartItem added = shoppingCartService.addProductToCart(
-                request.getUserId(), request.getProductId(), request.getQuantity());
+                request.getUserId(),
+                request.getProductId(),
+                request.getQuantity(),
+                request.getPrice() // ⬅ 新增传入单价
+        );
         return ApiResponse.success(added);
     }
 
@@ -57,7 +61,7 @@ public class ShoppingCartController {
     @PutMapping("/update")
     public ApiResponse<CartItem> updateQuantity(@RequestBody UpdateCartRequest request) {
         CartItem updated = shoppingCartService.updateProductQuantity(
-                request.getUserId(), request.getProductId(), request.getQuantity());
+                request.getUserId(), request.getProductId(), request.getQuantity(), request.getPrice());
         return ApiResponse.success(updated);
     }
 
